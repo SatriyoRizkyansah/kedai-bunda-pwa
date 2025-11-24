@@ -1,106 +1,204 @@
-# Kedai Bunda - Sistem Manajemen Kedai
+# Kedai Bunda POS System
 
-Aplikasi sistem manajemen untuk Kedai Bunda dengan fitur lengkap untuk mengelola stok bahan baku, menu, transaksi, dan laporan penjualan.
+Sistem Point of Sale (POS) untuk Kedai Bunda dengan manajemen stok bahan baku, menu, dan transaksi.
 
-## 🚀 Fitur Utama
+## 🏗️ Monorepo Structure
 
--   ✅ **Manajemen Bahan Baku** - Input dan tracking stok bahan baku dengan konversi unit otomatis
--   ✅ **Manajemen Menu** - Kelola menu dengan komposisi bahan baku
--   ✅ **Sistem Transaksi** - Pencatatan transaksi penjualan dengan pengurangan stok otomatis
--   ✅ **Laporan** - Laporan harian, mingguan, dan bulanan
--   ✅ **Multi-Level User** - Super Admin dan Admin dengan hak akses berbeda
--   ✅ **Dashboard Interaktif** - Dashboard dengan statistik real-time
+Proyek ini menggunakan **Turborepo** untuk mengelola multiple aplikasi dalam satu repository.
 
-## 🛠️ Teknologi
+```
+kedai-bunda-pwa/
+├── apps/
+│   ├── backend/          # Laravel API (PHP 8.2+)
+│   └── frontend/         # Vite + React + TypeScript
+├── turbo.json           # Turbo configuration
+└── package.json         # Root workspace
+```
 
--   Laravel 11
--   PHP 8.2+
--   MySQL
--   Tailwind CSS
--   Alpine.js
--   Laravel Breeze
+## 🚀 Quick Start
 
-## 📦 Instalasi
+### Prerequisites
 
-1. Clone repository
+- **Node.js** 18+ dan npm 9+
+- **PHP** 8.2+
+- **Composer** 2.x
+- **SQLite** atau **MySQL** 8.0+
+- **Turbo** (akan diinstall otomatis)
 
+### Installation
+
+1. **Clone repository**
+   ```bash
+   git clone <repository-url>
+   cd kedai-bunda-pwa
+   ```
+
+2. **Install root dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Setup Backend (Laravel)**
+   ```bash
+   cd apps/backend
+   composer install
+   cp .env.example .env
+   php artisan key:generate
+   
+   # Setup database di .env (sudah pake SQLite by default)
+   php artisan migrate --seed
+   php artisan jwt:secret
+   php artisan l5-swagger:generate
+   ```
+
+4. **Setup Frontend (Vite + React)**
+   ```bash
+   cd apps/frontend
+   npm install
+   ```
+
+### Development
+
+**Jalankan semua apps sekaligus (Recommended):**
 ```bash
-git clone <repository-url>
-cd kedai-bunda
+npm run dev
 ```
 
-2. Install dependencies
+**Atau jalankan terpisah:**
 
+Backend:
 ```bash
-composer install
-npm install
+npm run backend
+# atau
+cd apps/backend && php artisan serve
 ```
 
-3. Setup environment
-
+Frontend:
 ```bash
-cp .env.example .env
-php artisan key:generate
+npm run frontend
+# atau
+cd apps/frontend && npm run dev
 ```
 
-4. Konfigurasi database di file `.env`
-
-```
-DB_DATABASE=kedai_bunda
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-5. Jalankan migration dan seeder
-
-```bash
-php artisan migrate:fresh --seed
-```
-
-6. Build assets
+### Build Production
 
 ```bash
 npm run build
 ```
 
-7. Jalankan server
+## 📱 Applications
+
+### Backend (Laravel API)
+- **URL**: http://localhost:8000
+- **API Docs**: http://localhost:8000/api/documentation
+- **Tech Stack**: Laravel 11, JWT Auth, SQLite
+
+**Fitur:**
+- Authentication (Login/Logout/Register)
+- Manajemen Bahan Baku + Konversi
+- Manajemen Menu + Komposisi
+- Transaksi dengan auto-deduct stok
+- Dashboard & Laporan
+- User Management (Super Admin)
+
+### Frontend (Vite + React)
+- **URL**: http://localhost:5173
+- **Tech Stack**: Vite, React 18, TypeScript, TailwindCSS v4, Radix UI
+
+**Fitur:**
+- 8 Tema warna dengan light/dark mode
+- Dashboard dengan statistik
+- CRUD Bahan Baku & Menu
+- Transaksi real-time
+- Responsive design
+
+## 🎨 Themes
+
+Aplikasi menyediakan 8 tema:
+- Blue Ocean
+- Ruby Red
+- Amber Minimal
+- Amethyst Haze
+- Art Deco
+- Catppuccin
+- Nature Green
+- Ocean Breeze
+
+Setiap tema memiliki variant light & dark.
+
+## 📚 Documentation
+
+- [API Documentation](apps/backend/doc/API_DOCUMENTATION.md)
+- [Swagger UI](http://localhost:8000/api/documentation)
+- [Proses Bisnis](apps/backend/doc/todolist.txt)
+
+## 🔧 Useful Commands
 
 ```bash
-php artisan serve
+# Development
+npm run dev              # Run all apps
+npm run backend         # Run backend only
+npm run frontend        # Run frontend only
+
+# Build
+npm run build           # Build all apps
+
+# Lint & Format
+npm run lint            # Lint all code
+npm run format          # Format with Prettier
+
+# Clean
+npm run clean           # Clean all build artifacts
 ```
 
-Akses aplikasi di: `http://localhost:8000`
+## 📝 Environment Variables
 
-## 👤 Akun Demo
+### Backend (.env)
+```env
+APP_NAME="Kedai Bunda POS"
+APP_ENV=local
+APP_URL=http://localhost:8000
 
-### Super Admin
+DB_CONNECTION=sqlite
+DB_DATABASE=/absolute/path/to/database.sqlite
 
--   **Email:** superadmin@kedaibunda.com
--   **Password:** superadmin123
+JWT_SECRET=<generated-secret>
+JWT_TTL=10080  # 7 days in minutes
+```
 
-### Admin
+### Frontend (.env)
+```env
+VITE_API_URL=http://localhost:8000/api
+```
 
--   **Email:** admin@kedaibunda.com
--   **Password:** admin123
+## 👥 Default Users
 
-## 📊 Struktur Database
+Setelah migration & seeding:
 
--   **users** - Data pengguna (Super Admin & Admin)
--   **bahan_baku** - Data bahan baku
--   **konversi_bahan** - Konversi unit bahan baku (ekor → potong, liter → porsi, dll)
--   **menu** - Daftar menu
--   **komposisi_menu** - Relasi menu dengan bahan baku yang dibutuhkan
--   **transaksi** - Data transaksi penjualan
--   **detail_transaksi** - Detail item dalam transaksi
--   **stok_log** - Log perubahan stok bahan baku
+**Super Admin:**
+- Email: `super@kedaibunda.com`
+- Password: `password`
 
-## 🎨 Tampilan
+**Admin:**
+- Email: `admin@kedaibunda.com`
+- Password: `password`
 
--   **Navbar Horizontal** - Menu navigasi di bagian atas dengan warna merah-putih
--   **Dashboard** - Statistik real-time, menu terlaris, dan peringatan stok
--   **Design Merah-Putih** - Sesuai dengan identitas Kedai Bunda
+## 🤝 Contributing
 
-## 📝 License
+1. Fork repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
 
-MIT License
-# kedai-bunda-pwa
+## 📄 License
+
+This project is private and proprietary.
+
+## 📧 Contact
+
+Kedai Bunda - admin@kedaibunda.com
+
+---
+
+Made with ❤️ using Turborepo

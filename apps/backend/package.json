@@ -1,0 +1,24 @@
+{
+    "name": "@kedai-bunda/backend",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Kedai Bunda POS - Laravel API Backend",
+    "scripts": {
+        "dev": "php artisan serve",
+        "build": "php artisan config:cache && php artisan route:cache && php artisan view:cache",
+        "lint": "echo 'Laravel linting via composer...'",
+        "test": "php artisan test",
+        "clean": "php artisan cache:clear && php artisan config:clear && php artisan route:clear && php artisan view:clear",
+        "migrate": "php artisan migrate",
+        "migrate:fresh": "php artisan migrate:fresh --seed",
+        "seed": "php artisan db:seed",
+        "swagger": "php artisan l5-swagger:generate",
+        "key:generate": "php artisan key:generate",
+        "jwt:secret": "php artisan jwt:secret",
+        "storage:link": "php artisan storage:link"
+    },
+    "devDependencies": {},
+    "engines": {
+        "php": ">=8.2.0"
+    }
+}
