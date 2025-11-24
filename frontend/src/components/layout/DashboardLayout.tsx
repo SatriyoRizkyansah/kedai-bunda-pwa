@@ -83,22 +83,33 @@ export function DashboardLayout({ children }: NavbarProps) {
     };
 
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col bg-background">
             {/* Horizontal Navbar di Atas */}
-            <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
+            <header
+                className="sticky top-0 z-50 w-full border-b border-border bg-card backdrop-blur supports-[backdrop-filter]:bg-card/95"
+                style={{
+                    boxShadow: "var(--shadow-md)",
+                }}
+            >
                 <div className="container mx-auto px-4">
                     <div className="flex h-16 items-center gap-6">
                         {/* Logo */}
-                        <div className="flex items-center gap-2 mr-2">
-                            <div className="bg-primary text-primary-foreground p-2 rounded-lg">
+                        <div className="flex items-center gap-3 mr-2">
+                            <div
+                                className="bg-primary text-primary-foreground p-2.5 rounded-lg transition-transform hover:scale-110"
+                                style={{
+                                    borderRadius: "var(--radius)",
+                                    boxShadow: "var(--shadow-sm)",
+                                }}
+                            >
                                 <UtensilsCrossed className="h-6 w-6" />
                             </div>
                             <div>
-                                <h1 className="text-xl font-bold text-primary">
+                                <h1 className="text-xl font-bold text-primary tracking-tight">
                                     Kedai Bunda
                                 </h1>
-                                <p className="text-xs text-muted-foreground">
-                                    Sistem Kasir
+                                <p className="text-xs text-muted-foreground font-medium">
+                                    Sistem Kasir POS
                                 </p>
                             </div>
                         </div>
@@ -114,8 +125,12 @@ export function DashboardLayout({ children }: NavbarProps) {
                                             variant={
                                                 active ? "default" : "ghost"
                                             }
-                                            className="gap-2"
+                                            className="gap-2 transition-all"
                                             size="sm"
+                                            style={{
+                                                borderRadius:
+                                                    "calc(var(--radius) - 2px)",
+                                            }}
                                         >
                                             <Icon className="h-4 w-4" />
                                             {item.label}
@@ -133,15 +148,24 @@ export function DashboardLayout({ children }: NavbarProps) {
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
-                                    className="flex items-center gap-2 h-auto p-2"
+                                    className="flex items-center gap-2 h-auto p-2 hover:bg-accent"
+                                    style={{
+                                        borderRadius: "var(--radius)",
+                                    }}
                                 >
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                                    <Avatar
+                                        className="h-8 w-8"
+                                        style={{
+                                            borderRadius:
+                                                "calc(var(--radius) - 2px)",
+                                        }}
+                                    >
+                                        <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
                                             {getUserInitials()}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="text-left hidden lg:block">
-                                        <p className="text-sm font-medium">
+                                        <p className="text-sm font-medium text-foreground">
                                             {user?.name || "User"}
                                         </p>
                                         <p className="text-xs text-muted-foreground capitalize">
@@ -153,10 +177,17 @@ export function DashboardLayout({ children }: NavbarProps) {
                                     <ChevronDown className="h-4 w-4 text-muted-foreground hidden lg:block" />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuContent
+                                align="end"
+                                className="w-56"
+                                style={{
+                                    borderRadius: "var(--radius)",
+                                    boxShadow: "var(--shadow-lg)",
+                                }}
+                            >
                                 <DropdownMenuLabel>
                                     <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-medium leading-none">
+                                        <p className="text-sm font-medium leading-none text-foreground">
                                             {user?.name}
                                         </p>
                                         <p className="text-xs leading-none text-muted-foreground">
@@ -167,7 +198,7 @@ export function DashboardLayout({ children }: NavbarProps) {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     onClick={handleLogout}
-                                    className="cursor-pointer text-red-600 focus:text-red-600"
+                                    className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
                                 >
                                     <LogOut className="mr-2 h-4 w-4" />
                                     <span>Keluar</span>
@@ -179,12 +210,12 @@ export function DashboardLayout({ children }: NavbarProps) {
             </header>
 
             {/* Main Content */}
-            <main className="flex-1 bg-gray-50">
+            <main className="flex-1 bg-background">
                 <div className="container mx-auto px-4 py-6">{children}</div>
             </main>
 
             {/* Footer */}
-            <footer className="border-t bg-white">
+            <footer className="border-t border-border bg-card">
                 <div className="container mx-auto px-4 py-4">
                     <p className="text-center text-sm text-muted-foreground">
                         © 2025 Kedai Bunda. Semua hak dilindungi.

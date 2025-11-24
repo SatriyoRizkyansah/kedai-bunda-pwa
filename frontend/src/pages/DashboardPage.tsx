@@ -55,11 +55,11 @@ export function DashboardPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 {/* Header */}
-                <div>
-                    <h2 className="text-3xl font-bold text-gray-900">
+                <div className="mb-8">
+                    <h2 className="text-3xl font-bold text-foreground tracking-tight">
                         Dashboard
                     </h2>
-                    <p className="text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-2 text-base">
                         Ringkasan aktivitas dan stok Kedai Bunda
                     </p>
                 </div>
@@ -70,13 +70,11 @@ export function DashboardPage() {
                         title="Total Menu"
                         value={loading ? "..." : menu.length.toString()}
                         icon={<UtensilsCrossed className="h-6 w-6" />}
-                        bgColor="bg-blue-500"
                     />
                     <StatsCard
                         title="Bahan Baku"
                         value={loading ? "..." : bahanBaku.length.toString()}
                         icon={<Package className="h-6 w-6" />}
-                        bgColor="bg-green-500"
                         subtitle={
                             bahanStokMenipis.length > 0
                                 ? `${bahanStokMenipis.length} stok menipis`
@@ -89,7 +87,6 @@ export function DashboardPage() {
                             loading ? "..." : transaksiHariIni.length.toString()
                         }
                         icon={<ShoppingCart className="h-6 w-6" />}
-                        bgColor="bg-purple-500"
                     />
                     <StatsCard
                         title="Pendapatan Hari Ini"
@@ -101,41 +98,58 @@ export function DashboardPage() {
                                   )}`
                         }
                         icon={<TrendingUp className="h-6 w-6" />}
-                        bgColor="bg-primary"
                     />
                 </div>
 
                 {/* Alert Stok Menipis */}
                 {bahanStokMenipis.length > 0 && (
-                    <Card className="border-orange-200 bg-orange-50">
+                    <Card
+                        className="border-destructive/30 bg-destructive/5"
+                        style={{
+                            boxShadow: "var(--shadow-md)",
+                            borderRadius: "var(--radius)",
+                        }}
+                    >
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-orange-900">
-                                <AlertCircle className="h-5 w-5" />
-                                Peringatan Stok Menipis
+                            <CardTitle className="flex items-center gap-3 text-destructive">
+                                <div
+                                    className="bg-destructive text-destructive-foreground p-2 rounded-lg"
+                                    style={{
+                                        borderRadius:
+                                            "calc(var(--radius) - 2px)",
+                                    }}
+                                >
+                                    <AlertCircle className="h-5 w-5" />
+                                </div>
+                                <span>Peringatan Stok Menipis</span>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-2">
+                            <div className="space-y-3">
                                 {bahanStokMenipis.map((bahan) => (
                                     <div
                                         key={bahan.id}
-                                        className="flex justify-between items-center p-3 bg-white rounded-lg"
+                                        className="flex justify-between items-center p-4 bg-background border border-border rounded-lg hover:shadow-md transition-all"
+                                        style={{
+                                            borderRadius: "var(--radius)",
+                                            boxShadow: "var(--shadow-sm)",
+                                        }}
                                     >
                                         <div>
-                                            <p className="font-medium">
+                                            <p className="font-semibold text-foreground">
                                                 {bahan.nama}
                                             </p>
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-sm text-muted-foreground mt-1">
                                                 Stok minimum:{" "}
                                                 {bahan.stok_minimum}{" "}
                                                 {bahan.satuan}
                                             </p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-lg font-bold text-orange-600">
+                                            <p className="text-xl font-bold text-destructive">
                                                 {bahan.stok} {bahan.satuan}
                                             </p>
-                                            <p className="text-xs text-muted-foreground">
+                                            <p className="text-xs text-muted-foreground mt-1">
                                                 Tersisa
                                             </p>
                                         </div>
@@ -147,38 +161,80 @@ export function DashboardPage() {
                 )}
 
                 {/* Welcome Card */}
-                <Card>
+                <Card
+                    style={{
+                        boxShadow: "var(--shadow-lg)",
+                        borderRadius: "var(--radius)",
+                    }}
+                    className="border-border bg-card"
+                >
                     <CardHeader>
-                        <CardTitle className="text-2xl">
+                        <CardTitle className="text-2xl text-foreground font-bold">
                             Selamat Datang di Sistem Kedai Bunda! 🎉
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-muted-foreground mb-6">
+                        <p className="text-muted-foreground mb-6 text-base">
                             Aplikasi ini siap membantu Anda mengelola kasir,
                             menu, bahan baku, dan transaksi dengan mudah.
                         </p>
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                                <h4 className="font-semibold text-blue-900 mb-2">
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div
+                                className="p-5 bg-primary/10 rounded-lg border border-primary/20"
+                                style={{
+                                    borderRadius: "var(--radius)",
+                                    boxShadow: "var(--shadow-sm)",
+                                }}
+                            >
+                                <h4 className="font-bold text-primary mb-3 text-lg">
                                     ✨ Fitur Utama
                                 </h4>
-                                <ul className="text-sm text-blue-700 space-y-1">
-                                    <li>• Manajemen Menu & Kategori</li>
-                                    <li>• Tracking Bahan Baku & Stok</li>
-                                    <li>• Transaksi Real-time</li>
-                                    <li>• Laporan Penjualan</li>
+                                <ul className="text-sm text-foreground space-y-2">
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                                        Manajemen Menu & Kategori
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                                        Tracking Bahan Baku & Stok
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                                        Transaksi Real-time
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                                        Laporan Penjualan
+                                    </li>
                                 </ul>
                             </div>
-                            <div className="p-4 bg-green-50 rounded-lg border border-green-100">
-                                <h4 className="font-semibold text-green-900 mb-2">
+                            <div
+                                className="p-5 bg-secondary/10 rounded-lg border border-secondary/20"
+                                style={{
+                                    borderRadius: "var(--radius)",
+                                    boxShadow: "var(--shadow-sm)",
+                                }}
+                            >
+                                <h4 className="font-bold text-secondary-foreground mb-3 text-lg">
                                     🚀 Mulai Sekarang
                                 </h4>
-                                <ul className="text-sm text-green-700 space-y-1">
-                                    <li>• Cek Menu yang tersedia</li>
-                                    <li>• Pantau Stok Bahan Baku</li>
-                                    <li>• Buat Transaksi baru</li>
-                                    <li>• Lihat Riwayat Transaksi</li>
+                                <ul className="text-sm text-foreground space-y-2">
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-secondary rounded-full"></div>
+                                        Cek Menu yang tersedia
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-secondary rounded-full"></div>
+                                        Pantau Stok Bahan Baku
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-secondary rounded-full"></div>
+                                        Buat Transaksi baru
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-secondary rounded-full"></div>
+                                        Lihat Riwayat Transaksi
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -193,29 +249,39 @@ interface StatsCardProps {
     title: string;
     value: string;
     icon: React.ReactNode;
-    bgColor: string;
     subtitle?: string;
 }
 
-function StatsCard({ title, value, icon, bgColor, subtitle }: StatsCardProps) {
+function StatsCard({ title, value, icon, subtitle }: StatsCardProps) {
     return (
-        <Card className="hover:shadow-md transition-shadow">
+        <Card
+            className="hover:shadow-lg transition-all duration-300 border-border"
+            style={{
+                boxShadow: "var(--shadow-sm)",
+            }}
+        >
             <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-sm text-muted-foreground mb-1">
+                    <div className="flex-1">
+                        <p className="text-sm text-muted-foreground mb-1 font-medium">
                             {title}
                         </p>
-                        <p className="text-2xl font-bold text-gray-900">
+                        <p className="text-2xl font-bold text-foreground mt-2">
                             {value}
                         </p>
                         {subtitle && (
-                            <p className="text-xs text-orange-600 mt-1">
-                                {subtitle}
+                            <p className="text-xs text-destructive mt-2 font-medium">
+                                ⚠️ {subtitle}
                             </p>
                         )}
                     </div>
-                    <div className={`${bgColor} text-white p-3 rounded-lg`}>
+                    <div
+                        className="bg-primary text-primary-foreground p-4 rounded-lg transition-transform hover:scale-110"
+                        style={{
+                            borderRadius: "var(--radius)",
+                            boxShadow: "var(--shadow-md)",
+                        }}
+                    >
                         {icon}
                     </div>
                 </div>

@@ -2,10 +2,26 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import type { BahanBaku } from "@/lib/types";
-import { Plus, Pencil, Trash2, Search, AlertCircle } from "lucide-react";
+import {
+    Plus,
+    Pencil,
+    Trash2,
+    Search,
+    AlertCircle,
+    Package,
+} from "lucide-react";
 
 export function BahanBakuPage() {
     const [bahanBaku, setBahanBaku] = useState<BahanBaku[]>([]);
@@ -49,19 +65,31 @@ export function BahanBakuPage() {
                 {/* Header */}
                 <div className="flex justify-between items-center">
                     <div>
-                        <h2 className="text-3xl font-bold">Bahan Baku</h2>
-                        <p className="text-muted-foreground mt-1">
+                        <h2 className="text-3xl font-bold text-foreground tracking-tight">
+                            Bahan Baku
+                        </h2>
+                        <p className="text-muted-foreground mt-2">
                             Kelola stok bahan baku untuk menu
                         </p>
                     </div>
-                    <Button className="gap-2">
+                    <Button
+                        className="gap-2"
+                        style={{
+                            boxShadow: "var(--shadow-md)",
+                        }}
+                    >
                         <Plus className="h-4 w-4" />
                         Tambah Bahan Baku
                     </Button>
                 </div>
 
                 {/* Search */}
-                <Card>
+                <Card
+                    style={{
+                        boxShadow: "var(--shadow-sm)",
+                        borderRadius: "var(--radius)",
+                    }}
+                >
                     <CardContent className="p-6">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -70,131 +98,148 @@ export function BahanBakuPage() {
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="pl-10"
+                                style={{
+                                    borderRadius: "calc(var(--radius) - 2px)",
+                                }}
                             />
                         </div>
                     </CardContent>
                 </Card>
 
                 {/* Table */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Daftar Bahan Baku</CardTitle>
+                <Card
+                    style={{
+                        boxShadow: "var(--shadow-md)",
+                        borderRadius: "var(--radius)",
+                    }}
+                >
+                    <CardHeader className="border-b border-border">
+                        <CardTitle className="text-foreground">
+                            Daftar Bahan Baku
+                        </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         {loading ? (
-                            <p className="text-center py-8 text-muted-foreground">
+                            <p className="text-center py-12 text-muted-foreground">
                                 Memuat data...
                             </p>
                         ) : filteredBahanBaku.length === 0 ? (
-                            <p className="text-center py-8 text-muted-foreground">
-                                Tidak ada data bahan baku
-                            </p>
-                        ) : (
-                            <div className="overflow-x-auto">
-                                <table className="w-full">
-                                    <thead>
-                                        <tr className="border-b">
-                                            <th className="text-left p-4 font-semibold">
-                                                Nama Bahan
-                                            </th>
-                                            <th className="text-left p-4 font-semibold">
-                                                Satuan
-                                            </th>
-                                            <th className="text-right p-4 font-semibold">
-                                                Stok
-                                            </th>
-                                            <th className="text-right p-4 font-semibold">
-                                                Stok Min
-                                            </th>
-                                            <th className="text-right p-4 font-semibold">
-                                                Harga/Satuan
-                                            </th>
-                                            <th className="text-center p-4 font-semibold">
-                                                Status
-                                            </th>
-                                            <th className="text-center p-4 font-semibold">
-                                                Aksi
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredBahanBaku.map((item) => {
-                                            const isLowStock =
-                                                item.stok <= item.stok_minimum;
-                                            return (
-                                                <tr
-                                                    key={item.id}
-                                                    className="border-b hover:bg-gray-50"
-                                                >
-                                                    <td className="p-4">
-                                                        <p className="font-medium">
-                                                            {item.nama}
-                                                        </p>
-                                                    </td>
-                                                    <td className="p-4 text-muted-foreground">
-                                                        {item.satuan}
-                                                    </td>
-                                                    <td className="p-4 text-right">
-                                                        <span
-                                                            className={`font-semibold ${
-                                                                isLowStock
-                                                                    ? "text-red-600"
-                                                                    : ""
-                                                            }`}
-                                                        >
-                                                            {item.stok}
-                                                        </span>
-                                                    </td>
-                                                    <td className="p-4 text-right text-muted-foreground">
-                                                        {item.stok_minimum}
-                                                    </td>
-                                                    <td className="p-4 text-right">
-                                                        Rp{" "}
-                                                        {item.harga_satuan.toLocaleString(
-                                                            "id-ID"
-                                                        )}
-                                                    </td>
-                                                    <td className="p-4 text-center">
-                                                        {isLowStock ? (
-                                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                                                <AlertCircle className="h-3 w-3" />
-                                                                Menipis
-                                                            </span>
-                                                        ) : (
-                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                                                Aman
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <div className="flex justify-center gap-2">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="h-8 w-8 p-0"
-                                                            >
-                                                                <Pencil className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                                onClick={() =>
-                                                                    handleDelete(
-                                                                        item.id
-                                                                    )
-                                                                }
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </Button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
+                            <div className="text-center py-12">
+                                <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                                <p className="text-muted-foreground">
+                                    {searchTerm
+                                        ? "Tidak ada hasil pencarian"
+                                        : "Belum ada data bahan baku"}
+                                </p>
                             </div>
+                        ) : (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Nama Bahan</TableHead>
+                                        <TableHead>Satuan</TableHead>
+                                        <TableHead className="text-right">
+                                            Stok
+                                        </TableHead>
+                                        <TableHead className="text-right">
+                                            Stok Min
+                                        </TableHead>
+                                        <TableHead className="text-right">
+                                            Harga/Satuan
+                                        </TableHead>
+                                        <TableHead className="text-center">
+                                            Status
+                                        </TableHead>
+                                        <TableHead className="text-center">
+                                            Aksi
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredBahanBaku.map((item) => {
+                                        const isLowStock =
+                                            item.stok <= item.stok_minimum;
+                                        return (
+                                            <TableRow key={item.id}>
+                                                <TableCell className="font-medium text-foreground">
+                                                    {item.nama}
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground">
+                                                    {item.satuan}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <span
+                                                        className={`font-semibold ${
+                                                            isLowStock
+                                                                ? "text-destructive"
+                                                                : "text-foreground"
+                                                        }`}
+                                                    >
+                                                        {item.stok}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell className="text-right text-muted-foreground">
+                                                    {item.stok_minimum}
+                                                </TableCell>
+                                                <TableCell className="text-right font-medium">
+                                                    Rp{" "}
+                                                    {item.harga_satuan.toLocaleString(
+                                                        "id-ID"
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    {isLowStock ? (
+                                                        <Badge
+                                                            variant="destructive"
+                                                            className="gap-1"
+                                                            style={{
+                                                                borderRadius:
+                                                                    "calc(var(--radius) - 2px)",
+                                                            }}
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            Menipis
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge
+                                                            variant="success"
+                                                            style={{
+                                                                borderRadius:
+                                                                    "calc(var(--radius) - 2px)",
+                                                            }}
+                                                        >
+                                                            Aman
+                                                        </Badge>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex justify-center gap-2">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 w-8 p-0"
+                                                        >
+                                                            <Pencil className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    item.id
+                                                                )
+                                                            }
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
                         )}
                     </CardContent>
                 </Card>
