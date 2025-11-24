@@ -3,65 +3,50 @@ import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { BahanBakuPage } from "./pages/BahanBakuPage";
 import { MenuPage } from "./pages/MenuPage";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 function App() {
-    const isAuthenticated = !!localStorage.getItem("token");
-
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route
-                    path="/login"
-                    element={
-                        !isAuthenticated ? (
-                            <LoginPage />
-                        ) : (
-                            <Navigate to="/dashboard" />
-                        )
-                    }
-                />
-                <Route
-                    path="/dashboard"
-                    element={
-                        isAuthenticated ? (
-                            <DashboardPage />
-                        ) : (
-                            <Navigate to="/login" />
-                            // <DashboardPage />
-                        )
-                    }
-                />
-                <Route
-                    path="/bahan-baku"
-                    element={
-                        isAuthenticated ? (
-                            <BahanBakuPage />
-                        ) : (
-                            <Navigate to="/login" />
-                        )
-                    }
-                />
-                <Route
-                    path="/menu"
-                    element={
-                        isAuthenticated ? (
-                            <MenuPage />
-                        ) : (
-                            <Navigate to="/login" />
-                        )
-                    }
-                />
-                <Route
-                    path="/"
-                    element={
-                        <Navigate
-                            to={isAuthenticated ? "/dashboard" : "/login"}
-                        />
-                    }
-                />
-                <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-        </BrowserRouter>
+        <ThemeProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <ProtectedRoute>
+                                <DashboardPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/bahan-baku"
+                        element={
+                            <ProtectedRoute>
+                                <BahanBakuPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/menu"
+                        element={
+                            <ProtectedRoute>
+                                <MenuPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/"
+                        element={<Navigate to="/dashboard" replace />}
+                    />
+                    <Route
+                        path="*"
+                        element={<Navigate to="/dashboard" replace />}
+                    />
+                </Routes>
+            </BrowserRouter>
+        </ThemeProvider>
     );
 }
 

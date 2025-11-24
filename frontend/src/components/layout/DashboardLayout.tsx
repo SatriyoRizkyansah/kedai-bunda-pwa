@@ -20,6 +20,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import api from "@/lib/api";
 import { useEffect, useState } from "react";
 import type { User as UserType } from "@/lib/types";
@@ -123,6 +124,9 @@ export function DashboardLayout({ children }: NavbarProps) {
                                 );
                             })}
                         </nav>
+
+                        {/* Theme Switcher */}
+                        <ThemeSwitcher />
 
                         {/* User Menu */}
                         <DropdownMenu>
