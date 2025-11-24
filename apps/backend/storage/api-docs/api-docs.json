@@ -209,6 +209,232 @@
                     }
                 ]
             }
+        },
+        "/api/dashboard": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Statistik Dashboard",
+                "description": "Mendapatkan statistik lengkap: transaksi hari ini & bulan ini, menu terlaris, stok menipis, grafik penjualan 7 hari",
+                "operationId": "d5fcadff7c52501c317a59bc00886f22",
+                "responses": {
+                    "200": {
+                        "description": "Data statistik dashboard",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "sukses": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "transaksi_hari_ini": {
+                                                    "type": "integer",
+                                                    "example": 25
+                                                },
+                                                "pendapatan_hari_ini": {
+                                                    "type": "number",
+                                                    "example": 1250000
+                                                },
+                                                "transaksi_bulan_ini": {
+                                                    "type": "integer",
+                                                    "example": 350
+                                                },
+                                                "pendapatan_bulan_ini": {
+                                                    "type": "number",
+                                                    "example": 17500000
+                                                },
+                                                "menu_terlaris": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "nama": {
+                                                                "type": "string",
+                                                                "example": "Ayam Goreng"
+                                                            },
+                                                            "total_terjual": {
+                                                                "type": "integer",
+                                                                "example": 150
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "stok_menipis": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "nama": {
+                                                                "type": "string",
+                                                                "example": "Ayam Potong"
+                                                            },
+                                                            "stok": {
+                                                                "type": "number",
+                                                                "example": 5
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "grafik_penjualan": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "tanggal": {
+                                                                "type": "string",
+                                                                "example": "2025-01-24"
+                                                            },
+                                                            "total": {
+                                                                "type": "number",
+                                                                "example": 750000
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/konversi-bahan": {
+            "get": {
+                "tags": [
+                    "Konversi Bahan"
+                ],
+                "summary": "Ambil semua konversi bahan",
+                "operationId": "ba42c071c20333c594b3e6c4ab0892d1",
+                "parameters": [
+                    {
+                        "name": "bahan_baku_id",
+                        "in": "query",
+                        "description": "Filter by bahan baku ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data konversi bahan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "sukses": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "pesan": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "bahan_baku_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "satuan_asal": {
+                                                        "type": "string",
+                                                        "example": "ekor"
+                                                    },
+                                                    "satuan_tujuan": {
+                                                        "type": "string",
+                                                        "example": "potong"
+                                                    },
+                                                    "nilai_konversi": {
+                                                        "type": "number",
+                                                        "example": 8
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Konversi Bahan"
+                ],
+                "summary": "Tambah konversi bahan baru",
+                "operationId": "ff9718fc6e880080b9af32756405d6ad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "bahan_baku_id",
+                                    "satuan_konversi",
+                                    "nilai_konversi"
+                                ],
+                                "properties": {
+                                    "bahan_baku_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "satuan_konversi": {
+                                        "type": "string",
+                                        "example": "potong"
+                                    },
+                                    "nilai_konversi": {
+                                        "type": "number",
+                                        "example": 8
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "1 ekor = 8 potong"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Konversi berhasil ditambahkan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -224,6 +450,14 @@
         {
             "name": "Authentication",
             "description": "Authentication"
+        },
+        {
+            "name": "Dashboard",
+            "description": "Dashboard"
+        },
+        {
+            "name": "Konversi Bahan",
+            "description": "Konversi Bahan"
         }
     ]
 }
