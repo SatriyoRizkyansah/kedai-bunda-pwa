@@ -5,6 +5,7 @@ import { Input } from "../components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
+import { LoadingScreen } from "../components/LoadingScreen";
 import { Search, Layers, Pencil, Trash2, Plus } from "lucide-react";
 import api from "../lib/api";
 import type { KomposisiMenu, Menu } from "../lib/types";
@@ -140,9 +141,7 @@ export const KomposisiMenuPage = () => {
 
         {/* Komposisi Groups */}
         {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: "rgb(var(--primary))" }} />
-          </div>
+          <LoadingScreen message="Memuat komposisi menu..." size="md" />
         ) : filteredKomposisi.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">

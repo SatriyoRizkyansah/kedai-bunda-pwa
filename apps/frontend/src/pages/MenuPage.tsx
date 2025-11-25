@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import type { Menu } from "@/lib/types";
@@ -112,9 +113,7 @@ export function MenuPage() {
 
         {/* Menu Grid */}
         {loading ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Memuat data...</p>
-          </div>
+          <LoadingScreen message="Memuat data menu..." size="md" />
         ) : filteredMenu.length === 0 ? (
           <div className="text-center py-12">
             <UtensilsCrossed className="h-12 w-12 mx-auto text-muted-foreground mb-4" />

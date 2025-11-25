@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import type { KonversiBahan } from "@/lib/types";
@@ -113,19 +114,7 @@ export function KonversiBahanPage() {
           </CardHeader>
           <CardContent className="p-0">
             {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                  <p
-                    className="text-muted-foreground"
-                    style={{
-                      fontFamily: "var(--font-sans)",
-                    }}
-                  >
-                    Memuat data...
-                  </p>
-                </div>
-              </div>
+              <LoadingScreen message="Memuat data konversi..." size="md" />
             ) : konversi.length === 0 ? (
               <div className="text-center py-12">
                 <ArrowRightLeft className="h-12 w-12 mx-auto text-muted-foreground mb-4" />

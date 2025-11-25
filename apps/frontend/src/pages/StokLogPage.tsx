@@ -5,6 +5,7 @@ import { Input } from "../components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
+import { LoadingScreen } from "../components/LoadingScreen";
 import { Search, ArrowUpCircle, ArrowDownCircle, AlertCircle, History, Plus, Minus } from "lucide-react";
 import api from "../lib/api";
 import type { StokLog } from "../lib/types";
@@ -213,9 +214,7 @@ export const StokLogPage = () => {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: "rgb(var(--primary))" }} />
-              </div>
+              <LoadingScreen message="Memuat riwayat stok..." size="md" />
             ) : filteredLogs.length === 0 ? (
               <div className="text-center py-12">
                 <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

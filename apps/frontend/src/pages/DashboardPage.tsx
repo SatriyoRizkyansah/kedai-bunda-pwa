@@ -1,6 +1,7 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Package, ShoppingCart, UtensilsCrossed, TrendingUp, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import type { BahanBaku, Menu, Transaksi } from "@/lib/types";
@@ -37,6 +38,14 @@ export function DashboardPage() {
   // Cek bahan baku yang stoknya menipis (threshold: < 10)
   const bahanStokMenipis = bahanBaku.filter((b) => Number(b.stok_tersedia || 0) < 10);
 
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <LoadingScreen message="Memuat data dashboard..." size="lg" />
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -52,10 +61,10 @@ export function DashboardPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatsCard title="Total Menu" value={loading ? "..." : menu.length.toString()} icon={<UtensilsCrossed className="h-6 w-6" />} />
-          <StatsCard title="Bahan Baku" value={loading ? "..." : bahanBaku.length.toString()} icon={<Package className="h-6 w-6" />} subtitle={bahanStokMenipis.length > 0 ? `${bahanStokMenipis.length} stok menipis` : undefined} />
-          <StatsCard title="Transaksi Hari Ini" value={loading ? "..." : transaksiHariIni.length.toString()} icon={<ShoppingCart className="h-6 w-6" />} />
-          <StatsCard title="Pendapatan Hari Ini" value={loading ? "..." : `Rp ${pendapatanHariIni.toLocaleString("id-ID")}`} icon={<TrendingUp className="h-6 w-6" />} />
+          <StatsCard title="Total Menu" value={menu.length.toString()} icon={<UtensilsCrossed className="h-6 w-6" />} />
+          <StatsCard title="Bahan Baku" value={bahanBaku.length.toString()} icon={<Package className="h-6 w-6" />} subtitle={bahanStokMenipis.length > 0 ? `${bahanStokMenipis.length} stok menipis` : undefined} />
+          <StatsCard title="Transaksi Hari Ini" value={transaksiHariIni.length.toString()} icon={<ShoppingCart className="h-6 w-6" />} />
+          <StatsCard title="Pendapatan Hari Ini" value={`Rp ${pendapatanHariIni.toLocaleString("id-ID")}`} icon={<TrendingUp className="h-6 w-6" />} />
         </div>
 
         {/* Alert Stok Menipis */}
