@@ -14,7 +14,7 @@ export const LoadingScreen = ({ message = "Memuat data...", size = "md" }: Loadi
   };
 
   return (
-    <div className="flex flex-col items-center justify-center py-12">
+    <div className="flex flex-col items-center justify-center py-12" style={{ minHeight: "400px" }}>
       <Lottie
         animationData={cookingLoader}
         loop={true}

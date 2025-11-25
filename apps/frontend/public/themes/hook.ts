@@ -68,6 +68,8 @@ import steamCss from "./steam.css?inline";
 import notionCss from "./notion.css?inline";
 import youtubeCss from "./youtube.css?inline";
 import leagueOfLegendsCss from "./league-of-legends.css?inline";
+import unpamCss from "./unpam.css?inline";
+import kantinMerahCss from "./kantin-merah.css?inline";
 
 /**
  * Available theme options
@@ -140,6 +142,8 @@ export const themes = [
   "notion",
   "youtube",
   "league-of-legends",
+  "unpam",
+  "kantin-merah",
 ] as const;
 
 export type ThemeName = (typeof themes)[number];
@@ -213,6 +217,8 @@ const themeCssMap: Record<ThemeName, string> = {
   notion: notionCss,
   youtube: youtubeCss,
   "league-of-legends": leagueOfLegendsCss,
+  unpam: unpamCss,
+  "kantin-merah": kantinMerahCss,
 };
 
 interface UseThemeSwitcherReturn {
@@ -312,87 +318,12 @@ export function getThemeDisplayName(theme: ThemeName): string {
  * Group themes by category for better organization
  */
 export const themeCategories = {
-  brand: [
-    "spotify",
-    "twitter",
-    "slack",
-    "supabase",
-    "vercel",
-    "vscode",
-    "marvel",
-    "discord",
-    "netflix",
-    "youtube",
-    "notion",
-  ],
-  color: [
-    "blue",
-    "green",
-    "orange",
-    "red",
-    "rose",
-    "violet",
-    "yellow",
-    "tangerine",
-  ],
-  nature: [
-    "ocean-breeze",
-    "northern-lights",
-    "starry-night",
-    "summer",
-    "sunset-horizon",
-    "kodama-grove",
-    "ghibli-studio",
-  ],
-  style: [
-    "neo-brutalism",
-    "claymorphism",
-    "cyber-punk",
-    "retro-arcade",
-    "art-deco",
-    "vintage-paper",
-    "material-design",
-    "modern-minimal",
-  ],
-  aesthetic: [
-    "pastel-dreams",
-    "quantum-rose",
-    "violet-blossom",
-    "amethyst-haze",
-    "midnight-blossom",
-    "mocha-mousse",
-    "bubblegum",
-    "candyland",
-    "marshmallow",
-    "soft-pop",
-  ],
-  professional: [
-    "corporate",
-    "clean-state",
-    "perpetuity",
-    "graphite",
-    "mono",
-    "note-book",
-    "elegant-luxury",
-  ],
-  gaming: [
-    "valorant",
-    "doom-64",
-    "dota2",
-    "call-of-duty",
-    "league-of-legends",
-    "steam",
-  ],
-  other: [
-    "amber-minimal",
-    "bold.tech",
-    "caffein",
-    "catppuccin",
-    "claude",
-    "cosmic-night",
-    "dark-matter",
-    "nature",
-    "solar-dusk",
-    "t3-chat",
-  ],
+  brand: ["spotify", "twitter", "slack", "supabase", "vercel", "vscode", "marvel", "discord", "netflix", "youtube", "notion"],
+  color: ["blue", "green", "orange", "red", "rose", "violet", "yellow", "tangerine"],
+  nature: ["ocean-breeze", "northern-lights", "starry-night", "summer", "sunset-horizon", "kodama-grove", "ghibli-studio"],
+  style: ["neo-brutalism", "claymorphism", "cyber-punk", "retro-arcade", "art-deco", "vintage-paper", "material-design", "modern-minimal"],
+  aesthetic: ["pastel-dreams", "quantum-rose", "violet-blossom", "amethyst-haze", "midnight-blossom", "mocha-mousse", "bubblegum", "candyland", "marshmallow", "soft-pop"],
+  professional: ["corporate", "clean-state", "perpetuity", "graphite", "mono", "note-book", "elegant-luxury"],
+  gaming: ["valorant", "doom-64", "dota2", "call-of-duty", "league-of-legends", "steam"],
+  other: ["amber-minimal", "bold.tech", "caffein", "catppuccin", "claude", "cosmic-night", "dark-matter", "nature", "solar-dusk", "t3-chat", "unpam", "kantin-merah"],
 } as const;

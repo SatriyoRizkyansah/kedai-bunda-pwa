@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, Package, ShoppingCart, UtensilsCrossed, LogOut, Users, ChevronDown, ArrowRightLeft, Layers, History } from "lucide-react";
+import { Home, Package, ShoppingCart, UtensilsCrossed, LogOut, Users, ChevronDown, ArrowRightLeft, Layers, History, Palette } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -44,6 +44,7 @@ export function DashboardLayout({ children }: NavbarProps) {
     { href: "/transaksi", label: "Transaksi", icon: ShoppingCart },
     { href: "/konversi-bahan", label: "Konversi", icon: ArrowRightLeft },
     { href: "/stok-log", label: "Riwayat Stok", icon: History },
+    { href: "/theme-settings", label: "Tema", icon: Palette },
   ];
 
   // Add Users menu only for super_admin
@@ -172,8 +173,10 @@ export function DashboardLayout({ children }: NavbarProps) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 bg-background">
-        <div className="container mx-auto px-4 py-6">{children}</div>
+      <main className="flex-1 bg-background page-transition">
+        <div className="container mx-auto px-4 py-6" style={{ minHeight: "calc(100vh - 160px)" }}>
+          {children}
+        </div>
       </main>
 
       {/* Footer */}
