@@ -1,12 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
-import { BahanBakuPage } from "./pages/BahanBakuPage";
+import { InventoriPage } from "./pages/InventoriPage";
 import { MenuPage } from "./pages/MenuPage";
 import { TransaksiPage } from "./pages/TransaksiPage";
-import { KonversiBahanPage } from "./pages/KonversiBahanPage";
 import { StokLogPage } from "./pages/StokLogPage";
-import { KomposisiMenuPage } from "./pages/KomposisiMenuPage";
 import { ThemeSettingsPage } from "./pages/ThemeSettingsPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -28,10 +26,10 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/bahan-baku"
+        path="/inventori"
         element={
           <ProtectedRoute>
-            <BahanBakuPage />
+            <InventoriPage />
           </ProtectedRoute>
         }
       />
@@ -52,26 +50,10 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/konversi-bahan"
-        element={
-          <ProtectedRoute>
-            <KonversiBahanPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/stok-log"
         element={
           <ProtectedRoute>
             <StokLogPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/komposisi-menu"
-        element={
-          <ProtectedRoute>
-            <KomposisiMenuPage />
           </ProtectedRoute>
         }
       />

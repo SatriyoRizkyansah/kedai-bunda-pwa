@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, Package, ShoppingCart, UtensilsCrossed, LogOut, Users, ChevronDown, ArrowRightLeft, Layers, History, Menu } from "lucide-react";
+import { Home, Package, ShoppingCart, UtensilsCrossed, LogOut, Users, ChevronDown, History, Menu } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -213,13 +213,10 @@ export function DashboardLayout({ children }: NavbarProps) {
   const menuItems = useMemo(() => {
     const baseItems = [
       { href: "/dashboard", label: "Dashboard", icon: Home },
-      { href: "/bahan-baku", label: "Bahan Baku", icon: Package },
+      { href: "/inventori", label: "Inventori", icon: Package },
       { href: "/menu", label: "Menu", icon: UtensilsCrossed },
-      { href: "/komposisi-menu", label: "Komposisi Menu", icon: Layers },
       { href: "/transaksi", label: "Transaksi", icon: ShoppingCart },
-      { href: "/konversi-bahan", label: "Konversi", icon: ArrowRightLeft },
       { href: "/stok-log", label: "Riwayat Stok", icon: History },
-      // { href: "/theme-settings", label: "Tema", icon: Palette },
     ];
 
     // Add Users menu only for super_admin
