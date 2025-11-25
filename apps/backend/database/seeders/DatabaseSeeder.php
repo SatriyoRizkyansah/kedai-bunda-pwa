@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            SatuanSeeder::class, // Harus pertama karena menjadi referensi
             UserSeeder::class,
             BahanBakuSeeder::class,
             KonversiBahanSeeder::class,

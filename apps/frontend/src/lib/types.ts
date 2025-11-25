@@ -33,9 +33,26 @@ export interface Menu {
   gambar?: string | null;
   deskripsi: string | null;
   tersedia: boolean;
+  stok: number;
+  kelola_stok_mandiri: boolean;
+  satuan_id?: number | null;
+  stok_efektif?: number;
+  satuan?: Satuan;
   created_at: string;
   updated_at: string;
   komposisi?: KomposisiMenu[];
+}
+
+// Satuan types
+export interface Satuan {
+  id: number;
+  nama: string;
+  singkatan: string;
+  tipe: "berat" | "volume" | "jumlah";
+  satuan_dasar?: string | null;
+  faktor_konversi: number;
+  is_satuan_dasar: boolean;
+  aktif: boolean;
 }
 
 export interface KomposisiMenu {

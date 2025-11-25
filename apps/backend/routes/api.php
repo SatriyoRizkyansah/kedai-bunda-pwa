@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\StokLogController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\KonversiBahanController;
 use App\Http\Controllers\Api\KomposisiMenuController;
+use App\Http\Controllers\Api\SatuanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,18 +38,35 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/laporan/penjualan', [DashboardController::class, 'laporanPenjualan']);
     Route::get('/laporan/stok', [DashboardController::class, 'laporanStok']);
 
+    // Master Data Satuan (semua yang login bisa baca)
+    Route::get('satuan', [SatuanController::class, 'index']);
+    Route::get('satuan/grouped', [SatuanController::class, 'groupedByTipe']);
+    Route::get('satuan/{satuan}', [SatuanController::class, 'show']);
+
     // Bahan Baku (admin dan super_admin)
     Route::middleware('role:super_admin,admin')->group(function () {
         Route::apiResource('bahan-baku', BahanBakuController::class);
+        Route::post('bahan-baku/{id}/tambah-stok', [BahanBakuController::class, 'tambahStok']);
+        Route::post('bahan-baku/{id}/kurangi-stok', [BahanBakuController::class, 'kurangiStok']);
+        Route::get('bahan-baku/{id}/stok-log', [BahanBakuController::class, 'stokLog']);
         
         // Konversi Bahan
         Route::apiResource('konversi-bahan', KonversiBahanController::class);
+        
+        // Master Data Satuan (CRUD hanya admin)
+        Route::post('satuan', [SatuanController::class, 'store']);
+        Route::put('satuan/{satuan}', [SatuanController::class, 'update']);
+        Route::delete('satuan/{satuan}', [SatuanController::class, 'destroy']);
     });
 
     // Menu (admin dan super_admin)
     Route::middleware('role:super_admin,admin')->group(function () {
         Route::apiResource('menu', MenuController::class);
         Route::get('menu/{id}/cek-stok', [MenuController::class, 'cekStok']);
+        Route::get('menu/{id}/stok-efektif', [MenuController::class, 'getStokEfektif']);
+        Route::post('menu/{id}/tambah-stok', [MenuController::class, 'tambahStok']);
+        Route::post('menu/{id}/kurangi-stok', [MenuController::class, 'kurangiStok']);
+        Route::get('menu/{id}/stok-log', [MenuController::class, 'stokLog']);
         
         // Komposisi Menu
         Route::apiResource('komposisi-menu', KomposisiMenuController::class);

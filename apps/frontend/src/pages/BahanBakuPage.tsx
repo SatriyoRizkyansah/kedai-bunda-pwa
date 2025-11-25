@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import type { BahanBaku } from "@/lib/types";
-import { Plus, Pencil, Trash2, Search, AlertCircle, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, AlertCircle, Package, PackagePlus, History } from "lucide-react";
 
 export function BahanBakuPage() {
   const [bahanBaku, setBahanBaku] = useState<BahanBaku[]>([]);
@@ -25,6 +25,24 @@ export function BahanBakuPage() {
     keterangan: "",
     aktif: true,
   });
+
+  // State untuk tambah stok
+  const [stokDialogOpen, setStokDialogOpen] = useState(false);
+  const [stokItem, setStokItem] = useState<BahanBaku | null>(null);
+  const [stokFormData, setStokFormData] = useState({
+    jumlah: "",
+    keterangan: "",
+  });
+
+  // State untuk histori stok
+  const [historiDialogOpen, setHistoriDialogOpen] = useState(false);
+  const [historiItem, setHistoriItem] = useState<BahanBaku | null>(null);
+  const [stokLogs, setStokLogs] = useState<any[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
+
+  // State untuk confirm delete
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmTargetId, setConfirmTargetId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchBahanBaku();
@@ -118,14 +136,60 @@ export function BahanBakuPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Yakin ingin menghapus bahan baku ini?")) return;
+    setConfirmTargetId(id);
+    setConfirmOpen(true);
+  };
 
+  const performDelete = async () => {
+    if (!confirmTargetId) return;
     try {
-      await api.delete(`/bahan-baku/${id}`);
+      await api.delete(`/bahan-baku/${confirmTargetId}`);
+      setConfirmOpen(false);
+      setConfirmTargetId(null);
       fetchBahanBaku();
     } catch (error) {
       console.error("Error deleting:", error);
-      alert("Gagal menghapus bahan baku");
+    }
+  };
+
+  // Handler untuk tambah stok
+  const handleOpenStokDialog = (item: BahanBaku) => {
+    setStokItem(item);
+    setStokFormData({ jumlah: "", keterangan: "" });
+    setStokDialogOpen(true);
+  };
+
+  const handleTambahStok = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stokItem) return;
+
+    try {
+      await api.post(`/bahan-baku/${stokItem.id}/tambah-stok`, {
+        jumlah: parseFloat(stokFormData.jumlah),
+        keterangan: stokFormData.keterangan || `Penambahan stok ${stokItem.nama}`,
+      });
+      setStokDialogOpen(false);
+      setStokItem(null);
+      fetchBahanBaku();
+    } catch (error: any) {
+      console.error("Error tambah stok:", error);
+    }
+  };
+
+  // Handler untuk histori stok
+  const handleOpenHistori = async (item: BahanBaku) => {
+    setHistoriItem(item);
+    setLoadingLogs(true);
+    setHistoriDialogOpen(true);
+
+    try {
+      const response = await api.get(`/bahan-baku/${item.id}/stok-log`);
+      setStokLogs(response.data.data?.data || []);
+    } catch (error) {
+      console.error("Error fetching logs:", error);
+      setStokLogs([]);
+    } finally {
+      setLoadingLogs(false);
     }
   };
 
@@ -258,12 +322,37 @@ export function BahanBakuPage() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <div className="flex justify-center gap-2">
+                          <div className="flex justify-center gap-1">
+                            <Button
+                              onClick={() => handleOpenStokDialog(item)}
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 hover:bg-green-500/10 hover:text-green-600"
+                              title="Tambah Stok"
+                              style={{
+                                borderRadius: "calc(var(--radius) - 4px)",
+                              }}
+                            >
+                              <PackagePlus className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              onClick={() => handleOpenHistori(item)}
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 hover:bg-blue-500/10 hover:text-blue-600"
+                              title="Riwayat Stok"
+                              style={{
+                                borderRadius: "calc(var(--radius) - 4px)",
+                              }}
+                            >
+                              <History className="h-4 w-4" />
+                            </Button>
                             <Button
                               onClick={() => handleOpenDialog(item)}
                               variant="ghost"
                               size="sm"
                               className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                              title="Edit"
                               style={{
                                 borderRadius: "calc(var(--radius) - 4px)",
                               }}
@@ -274,6 +363,7 @@ export function BahanBakuPage() {
                               variant="ghost"
                               size="sm"
                               className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              title="Hapus"
                               style={{
                                 borderRadius: "calc(var(--radius) - 4px)",
                               }}
@@ -340,6 +430,135 @@ export function BahanBakuPage() {
                 <Button type="submit">{editingItem ? "Update" : "Simpan"}</Button>
               </DialogFooter>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Tambah Stok */}
+        <Dialog open={stokDialogOpen} onOpenChange={setStokDialogOpen}>
+          <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>Tambah Stok</DialogTitle>
+              <DialogDescription>
+                {stokItem?.nama} - Stok saat ini: {Number(stokItem?.stok_tersedia || 0).toFixed(2)} {stokItem?.satuan_dasar}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleTambahStok}>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <label htmlFor="jumlah_stok" className="text-sm font-medium">
+                    Jumlah Tambah <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    id="jumlah_stok"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={stokFormData.jumlah}
+                    onChange={(e) => setStokFormData({ ...stokFormData, jumlah: e.target.value })}
+                    placeholder={`Jumlah dalam ${stokItem?.satuan_dasar || "satuan"}`}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="keterangan_stok" className="text-sm font-medium">
+                    Keterangan
+                  </label>
+                  <Input id="keterangan_stok" value={stokFormData.keterangan} onChange={(e) => setStokFormData({ ...stokFormData, keterangan: e.target.value })} placeholder="Contoh: Pembelian dari supplier" />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setStokDialogOpen(false)}>
+                  Batal
+                </Button>
+                <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                  <PackagePlus className="h-4 w-4 mr-2" />
+                  Tambah Stok
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Histori Stok */}
+        <Dialog open={historiDialogOpen} onOpenChange={setHistoriDialogOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Riwayat Stok - {historiItem?.nama}</DialogTitle>
+            </DialogHeader>
+            <div className="max-h-[400px] overflow-y-auto">
+              {loadingLogs ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Memuat riwayat...</p>
+                </div>
+              ) : stokLogs.length === 0 ? (
+                <div className="text-center py-8">
+                  <History className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">Belum ada riwayat perubahan stok</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tanggal</TableHead>
+                      <TableHead>Tipe</TableHead>
+                      <TableHead className="text-right">Jumlah</TableHead>
+                      <TableHead className="text-right">Stok Akhir</TableHead>
+                      <TableHead>Keterangan</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {stokLogs.map((log: any) => (
+                      <TableRow key={log.id}>
+                        <TableCell className="text-sm">
+                          {new Date(log.created_at).toLocaleDateString("id-ID", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={log.tipe === "masuk" ? "success" : "destructive"} className={log.tipe === "masuk" ? "bg-green-500" : ""}>
+                            {log.tipe === "masuk" ? "+" : "-"} {log.tipe}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          {log.tipe === "masuk" ? "+" : "-"}
+                          {Number(log.jumlah).toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-right">{Number(log.stok_sesudah).toFixed(2)}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{log.keterangan || "-"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setHistoriDialogOpen(false)}>
+                Tutup
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Konfirmasi Hapus */}
+        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>Konfirmasi Hapus</DialogTitle>
+              <DialogDescription>Apakah Anda yakin ingin menghapus bahan baku ini? Tindakan ini tidak dapat dibatalkan.</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+                Batal
+              </Button>
+              <Button variant="destructive" onClick={performDelete}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Hapus
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

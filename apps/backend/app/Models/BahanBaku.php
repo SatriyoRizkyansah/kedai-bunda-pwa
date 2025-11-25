@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class BahanBaku extends Model
@@ -13,6 +14,7 @@ class BahanBaku extends Model
     protected $fillable = [
         'nama',
         'satuan_dasar',
+        'satuan_id',
         'stok_tersedia',
         'harga_per_satuan',
         'keterangan',
@@ -24,6 +26,14 @@ class BahanBaku extends Model
         'harga_per_satuan' => 'decimal:2',
         'aktif' => 'boolean',
     ];
+
+    /**
+     * Relasi ke satuan
+     */
+    public function satuan(): BelongsTo
+    {
+        return $this->belongsTo(Satuan::class);
+    }
 
     /**
      * Relasi ke konversi bahan
@@ -57,5 +67,47 @@ class BahanBaku extends Model
     public function stokLog(): HasMany
     {
         return $this->hasMany(StokLog::class);
+    }
+
+    /**
+     * Tambah stok dengan logging
+     */
+    public function tambahStok(float $jumlah, int $userId, ?string $keterangan = null, ?string $referensi = null): StokLog
+    {
+        $stokSebelum = $this->stok_tersedia;
+        $stokSesudah = $stokSebelum + $jumlah;
+
+        $this->update(['stok_tersedia' => $stokSesudah]);
+
+        return $this->stokLog()->create([
+            'user_id' => $userId,
+            'tipe' => 'masuk',
+            'jumlah' => $jumlah,
+            'stok_sebelum' => $stokSebelum,
+            'stok_sesudah' => $stokSesudah,
+            'keterangan' => $keterangan,
+            'referensi' => $referensi,
+        ]);
+    }
+
+    /**
+     * Kurangi stok dengan logging
+     */
+    public function kurangiStok(float $jumlah, int $userId, ?string $keterangan = null, ?string $referensi = null): StokLog
+    {
+        $stokSebelum = $this->stok_tersedia;
+        $stokSesudah = max(0, $stokSebelum - $jumlah);
+
+        $this->update(['stok_tersedia' => $stokSesudah]);
+
+        return $this->stokLog()->create([
+            'user_id' => $userId,
+            'tipe' => 'keluar',
+            'jumlah' => $jumlah,
+            'stok_sebelum' => $stokSebelum,
+            'stok_sesudah' => $stokSesudah,
+            'keterangan' => $keterangan,
+            'referensi' => $referensi,
+        ]);
     }
 }

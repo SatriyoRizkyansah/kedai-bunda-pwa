@@ -338,4 +338,122 @@ class BahanBakuController extends Controller
             'pesan' => 'Bahan baku berhasil dihapus'
         ]);
     }
+
+    /**
+     * Tambah stok bahan baku dengan tracking
+     */
+    public function tambahStok(Request $request, $id)
+    {
+        $bahanBaku = BahanBaku::find($id);
+
+        if (!$bahanBaku) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Bahan baku tidak ditemukan'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'jumlah' => 'required|numeric|min:0.01',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $log = $bahanBaku->tambahStok(
+            $request->jumlah,
+            $request->user()->id,
+            $request->keterangan
+        );
+
+        return response()->json([
+            'sukses' => true,
+            'pesan' => 'Stok berhasil ditambahkan',
+            'data' => [
+                'bahan_baku' => new BahanBakuResource($bahanBaku->fresh()),
+                'log' => $log,
+            ]
+        ]);
+    }
+
+    /**
+     * Kurangi stok bahan baku dengan tracking
+     */
+    public function kurangiStok(Request $request, $id)
+    {
+        $bahanBaku = BahanBaku::find($id);
+
+        if (!$bahanBaku) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Bahan baku tidak ditemukan'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'jumlah' => 'required|numeric|min:0.01',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        if ($request->jumlah > $bahanBaku->stok_tersedia) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Jumlah melebihi stok tersedia'
+            ], 422);
+        }
+
+        $log = $bahanBaku->kurangiStok(
+            $request->jumlah,
+            $request->user()->id,
+            $request->keterangan
+        );
+
+        return response()->json([
+            'sukses' => true,
+            'pesan' => 'Stok berhasil dikurangi',
+            'data' => [
+                'bahan_baku' => new BahanBakuResource($bahanBaku->fresh()),
+                'log' => $log,
+            ]
+        ]);
+    }
+
+    /**
+     * Get stok log untuk bahan baku tertentu
+     */
+    public function stokLog($id)
+    {
+        $bahanBaku = BahanBaku::find($id);
+
+        if (!$bahanBaku) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Bahan baku tidak ditemukan'
+            ], 404);
+        }
+
+        $logs = $bahanBaku->stokLog()
+            ->with('user:id,name')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return response()->json([
+            'sukses' => true,
+            'data' => $logs
+        ]);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MenuResource;
 use App\Models\Menu;
+use App\Models\MenuStokLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -136,7 +137,10 @@ class MenuController extends Controller
             'harga_jual' => 'required|numeric|min:0',
             'gambar' => 'nullable|string',
             'deskripsi' => 'nullable|string',
-            'tersedia' => 'boolean'
+            'tersedia' => 'boolean',
+            'stok' => 'nullable|numeric|min:0',
+            'kelola_stok_mandiri' => 'boolean',
+            'satuan_id' => 'nullable|exists:satuan,id',
         ]);
 
         if ($validator->fails()) {
@@ -147,7 +151,13 @@ class MenuController extends Controller
             ], 422);
         }
 
-        $menu = Menu::create($request->all());
+        $data = $request->all();
+        // Default kelola_stok_mandiri = true (stok manual)
+        if (!isset($data['kelola_stok_mandiri'])) {
+            $data['kelola_stok_mandiri'] = true;
+        }
+
+        $menu = Menu::create($data);
 
         return response()->json([
             'sukses' => true,
@@ -301,7 +311,10 @@ class MenuController extends Controller
             'harga_jual' => 'sometimes|numeric|min:0',
             'gambar' => 'nullable|string',
             'deskripsi' => 'nullable|string',
-            'tersedia' => 'boolean'
+            'tersedia' => 'boolean',
+            'stok' => 'nullable|numeric|min:0',
+            'kelola_stok_mandiri' => 'boolean',
+            'satuan_id' => 'nullable|exists:satuan,id',
         ]);
 
         if ($validator->fails()) {
@@ -450,6 +463,185 @@ class MenuController extends Controller
             'tersedia' => $tersedia,
             'menu' => $menu->nama,
             'kekurangan_bahan' => $kekuranganBahan
+        ]);
+    }
+
+    /**
+     * Tambah stok menu (untuk mode kelola_stok_mandiri = true)
+     */
+    public function tambahStok(Request $request, $id)
+    {
+        $menu = Menu::find($id);
+
+        if (!$menu) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Menu tidak ditemukan'
+            ], 404);
+        }
+
+        if (!$menu->kelola_stok_mandiri) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Menu ini menggunakan stok dari bahan baku, tidak bisa ditambah manual'
+            ], 422);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'jumlah' => 'required|numeric|min:0.01',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $stokSebelum = $menu->stok;
+        $stokSesudah = $stokSebelum + $request->jumlah;
+
+        $menu->update(['stok' => $stokSesudah]);
+
+        $log = MenuStokLog::create([
+            'menu_id' => $menu->id,
+            'user_id' => $request->user()->id,
+            'tipe' => 'masuk',
+            'jumlah' => $request->jumlah,
+            'stok_sebelum' => $stokSebelum,
+            'stok_sesudah' => $stokSesudah,
+            'keterangan' => $request->keterangan,
+        ]);
+
+        return response()->json([
+            'sukses' => true,
+            'pesan' => 'Stok menu berhasil ditambahkan',
+            'data' => [
+                'menu' => new MenuResource($menu->fresh()),
+                'log' => $log,
+            ]
+        ]);
+    }
+
+    /**
+     * Kurangi stok menu (untuk mode kelola_stok_mandiri = true)
+     */
+    public function kurangiStok(Request $request, $id)
+    {
+        $menu = Menu::find($id);
+
+        if (!$menu) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Menu tidak ditemukan'
+            ], 404);
+        }
+
+        if (!$menu->kelola_stok_mandiri) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Menu ini menggunakan stok dari bahan baku, tidak bisa dikurangi manual'
+            ], 422);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'jumlah' => 'required|numeric|min:0.01',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        if ($request->jumlah > $menu->stok) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Jumlah melebihi stok tersedia'
+            ], 422);
+        }
+
+        $stokSebelum = $menu->stok;
+        $stokSesudah = max(0, $stokSebelum - $request->jumlah);
+
+        $menu->update(['stok' => $stokSesudah]);
+
+        $log = MenuStokLog::create([
+            'menu_id' => $menu->id,
+            'user_id' => $request->user()->id,
+            'tipe' => 'keluar',
+            'jumlah' => $request->jumlah,
+            'stok_sebelum' => $stokSebelum,
+            'stok_sesudah' => $stokSesudah,
+            'keterangan' => $request->keterangan,
+        ]);
+
+        return response()->json([
+            'sukses' => true,
+            'pesan' => 'Stok menu berhasil dikurangi',
+            'data' => [
+                'menu' => new MenuResource($menu->fresh()),
+                'log' => $log,
+            ]
+        ]);
+    }
+
+    /**
+     * Get stok log untuk menu tertentu
+     */
+    public function stokLog($id)
+    {
+        $menu = Menu::find($id);
+
+        if (!$menu) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Menu tidak ditemukan'
+            ], 404);
+        }
+
+        $logs = MenuStokLog::where('menu_id', $id)
+            ->with('user:id,name')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return response()->json([
+            'sukses' => true,
+            'data' => $logs
+        ]);
+    }
+
+    /**
+     * Get stok efektif menu (baik manual maupun dari bahan baku)
+     */
+    public function getStokEfektif($id)
+    {
+        $menu = Menu::with(['komposisiMenu.bahanBaku', 'satuan'])->find($id);
+
+        if (!$menu) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Menu tidak ditemukan'
+            ], 404);
+        }
+
+        $stokEfektif = $menu->stok_efektif;
+        $mode = $menu->kelola_stok_mandiri ? 'manual' : 'dari_bahan_baku';
+
+        return response()->json([
+            'sukses' => true,
+            'data' => [
+                'menu_id' => $menu->id,
+                'nama' => $menu->nama,
+                'stok_efektif' => $stokEfektif,
+                'mode_stok' => $mode,
+                'satuan' => $menu->satuan?->singkatan ?? 'pcs',
+            ]
         ]);
     }
 }
