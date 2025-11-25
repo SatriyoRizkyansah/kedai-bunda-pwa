@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { BahanBakuPage } from "./pages/BahanBakuPage";
@@ -13,13 +13,11 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { useGlobalThemeShortcut } from "./hooks/useGlobalThemeShortcut";
 
 function AppRoutes() {
-  const location = useLocation();
-
   // Enable global theme shortcut (Ctrl + Arrow Right)
   useGlobalThemeShortcut();
 
   return (
-    <Routes location={location} key={location.pathname}>
+    <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route
         path="/dashboard"

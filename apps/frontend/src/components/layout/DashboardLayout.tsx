@@ -32,6 +32,8 @@ const Navbar = memo(({ user, isActive, handleLogout, menuItems }: { user: UserTy
       className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/95"
       style={{
         boxShadow: "var(--shadow-md)",
+        minHeight: "64px",
+        maxHeight: "64px",
       }}
     >
       <div className="container mx-auto px-4">
@@ -91,15 +93,15 @@ const Navbar = memo(({ user, isActive, handleLogout, menuItems }: { user: UserTy
           </Sheet>
 
           {/* Menu Navigasi - Horizontal (Desktop) */}
-          <nav className="hidden md:flex items-center gap-1 flex-1">
+          <nav className="hidden md:flex items-center gap-1 flex-1" style={{ minWidth: 0 }}>
             {menuItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
               return (
-                <Link key={item.href} to={item.href}>
+                <Link key={item.href} to={item.href} style={{ display: "inline-flex" }}>
                   <Button
                     variant={active ? "default" : "ghost"}
-                    className="gap-2 transition-all"
+                    className="gap-2"
                     size="sm"
                     style={{
                       borderRadius: "calc(var(--radius) - 2px)",
@@ -232,7 +234,7 @@ export function DashboardLayout({ children }: NavbarProps) {
   const isActive = useCallback((path: string) => location.pathname === path, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ minHeight: "100vh" }}>
       {/* Horizontal Navbar di Atas - Memoized */}
       <Navbar user={user} isActive={isActive} handleLogout={handleLogout} menuItems={menuItems} />
 
@@ -244,8 +246,8 @@ export function DashboardLayout({ children }: NavbarProps) {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card">
-        <div className="container mx-auto px-4 py-4">
+      <footer className="border-t border-border bg-card" style={{ minHeight: "64px" }}>
+        <div className="container mx-auto px-4 py-4" style={{ maxWidth: "100%", width: "100%" }}>
           <p className="text-center text-sm text-muted-foreground">© 2025 Kedai Bunda. Semua hak dilindungi.</p>
         </div>
       </footer>
