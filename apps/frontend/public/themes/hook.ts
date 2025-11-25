@@ -70,6 +70,8 @@ import youtubeCss from "./youtube.css?inline";
 import leagueOfLegendsCss from "./league-of-legends.css?inline";
 import unpamCss from "./unpam.css?inline";
 import kantinMerahCss from "./kantin-merah.css?inline";
+import kantinBelakangCss from "./kantin-belakang.css?inline";
+import kantinBasementCss from "./kantin-basement.css?inline";
 
 /**
  * Available theme options
@@ -144,6 +146,8 @@ export const themes = [
   "league-of-legends",
   "unpam",
   "kantin-merah",
+  "kantin-belakang",
+  "kantin-basement",
 ] as const;
 
 export type ThemeName = (typeof themes)[number];
@@ -219,6 +223,8 @@ const themeCssMap: Record<ThemeName, string> = {
   "league-of-legends": leagueOfLegendsCss,
   unpam: unpamCss,
   "kantin-merah": kantinMerahCss,
+  "kantin-belakang": kantinBelakangCss,
+  "kantin-basement": kantinBasementCss,
 };
 
 interface UseThemeSwitcherReturn {
@@ -325,5 +331,5 @@ export const themeCategories = {
   aesthetic: ["pastel-dreams", "quantum-rose", "violet-blossom", "amethyst-haze", "midnight-blossom", "mocha-mousse", "bubblegum", "candyland", "marshmallow", "soft-pop"],
   professional: ["corporate", "clean-state", "perpetuity", "graphite", "mono", "note-book", "elegant-luxury"],
   gaming: ["valorant", "doom-64", "dota2", "call-of-duty", "league-of-legends", "steam"],
-  other: ["amber-minimal", "bold.tech", "caffein", "catppuccin", "claude", "cosmic-night", "dark-matter", "nature", "solar-dusk", "t3-chat", "unpam", "kantin-merah"],
+  other: ["amber-minimal", "bold.tech", "caffein", "catppuccin", "claude", "cosmic-night", "dark-matter", "nature", "solar-dusk", "t3-chat", "unpam", "kantin-merah", "kantin-belakang", "kantin-basement"],
 } as const;

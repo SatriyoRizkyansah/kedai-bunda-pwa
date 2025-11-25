@@ -46,6 +46,18 @@
     contain: layout;
     transform: translateZ(0);
     backface-visibility: hidden;
+    overflow: hidden;
+  }
+
+  /* Prevent horizontal overflow in navbar */
+  header nav {
+    overflow-x: hidden;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  header nav::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   }
 
   /* Smooth button transitions in navbar */

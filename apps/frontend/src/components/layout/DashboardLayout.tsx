@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, Package, ShoppingCart, UtensilsCrossed, LogOut, Users, ChevronDown, ArrowRightLeft, Layers, History, Palette, Menu } from "lucide-react";
+import { Home, Package, ShoppingCart, UtensilsCrossed, LogOut, Users, ChevronDown, ArrowRightLeft, Layers, History, Menu } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -15,7 +15,7 @@ interface NavbarProps {
 
 // Memoized Navbar Component untuk mencegah re-render
 const Navbar = memo(({ user, isActive, handleLogout, menuItems }: { user: UserType | null; isActive: (path: string) => boolean; handleLogout: () => void; menuItems: Array<{ href: string; label: string; icon: any }> }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const getUserInitials = () => {
     if (!user?.name) return "U";
@@ -36,29 +36,12 @@ const Navbar = memo(({ user, isActive, handleLogout, menuItems }: { user: UserTy
         maxHeight: "64px",
       }}
     >
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center gap-3 md:gap-6">
-          {/* Logo */}
-          <div className="flex items-center gap-2 md:gap-3 md:mr-2">
-            <div
-              className="bg-primary text-primary-foreground p-2 md:p-2.5 rounded-lg transition-transform hover:scale-110"
-              style={{
-                borderRadius: "var(--radius)",
-                boxShadow: "var(--shadow-sm)",
-              }}
-            >
-              <UtensilsCrossed className="h-5 w-5 md:h-6 md:w-6" />
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-lg md:text-xl font-bold text-primary tracking-tight">Kedai Bunda</h1>
-              <p className="text-xs text-muted-foreground font-medium">Sistem Kasir POS</p>
-            </div>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+      <div className="container mx-auto px-4" style={{ maxWidth: "100%", width: "100%" }}>
+        <div className="flex h-16 items-center gap-3" style={{ minHeight: "64px" }}>
+          {/* Hamburger Menu Button - Visible when menu would overflow (mobile & small tablets) */}
+          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button variant="ghost" size="icon" className="lg:hidden shrink-0">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -74,7 +57,7 @@ const Navbar = memo(({ user, isActive, handleLogout, menuItems }: { user: UserTy
                   const Icon = item.icon;
                   const active = isActive(item.href);
                   return (
-                    <Link key={item.href} to={item.href} onClick={() => setMobileMenuOpen(false)}>
+                    <Link key={item.href} to={item.href} onClick={() => setSidebarOpen(false)}>
                       <Button
                         variant={active ? "default" : "ghost"}
                         className="w-full justify-start gap-3"
@@ -92,8 +75,25 @@ const Navbar = memo(({ user, isActive, handleLogout, menuItems }: { user: UserTy
             </SheetContent>
           </Sheet>
 
-          {/* Menu Navigasi - Horizontal (Desktop) */}
-          <nav className="hidden md:flex items-center gap-1 flex-1" style={{ minWidth: 0 }}>
+          {/* Logo */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div
+              className="bg-primary text-primary-foreground p-2 rounded-lg"
+              style={{
+                borderRadius: "var(--radius)",
+                boxShadow: "var(--shadow-sm)",
+              }}
+            >
+              <UtensilsCrossed className="h-5 w-5" />
+            </div>
+            <div className="hidden sm:block mr-5">
+              <h1 className="text-base md:text-lg font-bold text-primary tracking-tight whitespace-nowrap">Kedai Bunda</h1>
+              <p className="text-xs text-muted-foreground font-medium whitespace-nowrap">Sistem Kasir POS</p>
+            </div>
+          </div>
+
+          {/* Menu Navigasi - Horizontal (Desktop) - Show all when space available */}
+          <nav className="hidden lg:flex items-center gap-1 flex-1" style={{ minWidth: 0 }}>
             {menuItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
@@ -101,25 +101,28 @@ const Navbar = memo(({ user, isActive, handleLogout, menuItems }: { user: UserTy
                 <Link key={item.href} to={item.href} style={{ display: "inline-flex" }}>
                   <Button
                     variant={active ? "default" : "ghost"}
-                    className="gap-2"
+                    className="gap-2 whitespace-nowrap"
                     size="sm"
                     style={{
                       borderRadius: "calc(var(--radius) - 2px)",
                     }}
                   >
                     <Icon className="h-4 w-4" />
-                    {item.label}
+                    <span className="hidden xl:inline">{item.label}</span>
                   </Button>
                 </Link>
               );
             })}
           </nav>
 
-          {/* Spacer for mobile */}
-          <div className="flex-1 md:hidden" />
+          {/* Spacer */}
+          <div className="flex-1 lg:hidden" />
 
-          {/* Theme Switcher */}
-          <div className="hidden sm:block">
+          {/* Spacer */}
+          <div className="flex-1 lg:hidden" />
+
+          {/* Theme Switcher - Hide on small screens */}
+          <div className="hidden md:block shrink-0">
             <ThemeSwitcher />
           </div>
 
@@ -128,7 +131,7 @@ const Navbar = memo(({ user, isActive, handleLogout, menuItems }: { user: UserTy
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="flex items-center gap-2 h-auto p-2 hover:bg-accent"
+                className="flex items-center gap-2 h-auto p-2 hover:bg-accent shrink-0"
                 style={{
                   borderRadius: "var(--radius)",
                 }}
@@ -142,8 +145,8 @@ const Navbar = memo(({ user, isActive, handleLogout, menuItems }: { user: UserTy
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">{getUserInitials()}</AvatarFallback>
                 </Avatar>
                 <div className="text-left hidden lg:block">
-                  <p className="text-sm font-medium text-foreground">{user?.name || "User"}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{user?.role === "super_admin" ? "Super Admin" : "Admin"}</p>
+                  <p className="text-sm font-medium text-foreground whitespace-nowrap">{user?.name || "User"}</p>
+                  <p className="text-xs text-muted-foreground capitalize whitespace-nowrap">{user?.role === "super_admin" ? "Super Admin" : "Admin"}</p>
                 </div>
                 <ChevronDown className="h-4 w-4 text-muted-foreground hidden lg:block" />
               </Button>
@@ -164,10 +167,10 @@ const Navbar = memo(({ user, isActive, handleLogout, menuItems }: { user: UserTy
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               {/* Theme Switcher for Mobile */}
-              <div className="sm:hidden px-2 py-2">
+              <div className="md:hidden px-2 py-2">
                 <ThemeSwitcher />
               </div>
-              <DropdownMenuSeparator className="sm:hidden" />
+              <DropdownMenuSeparator className="md:hidden" />
               <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Keluar</span>
@@ -216,7 +219,7 @@ export function DashboardLayout({ children }: NavbarProps) {
       { href: "/transaksi", label: "Transaksi", icon: ShoppingCart },
       { href: "/konversi-bahan", label: "Konversi", icon: ArrowRightLeft },
       { href: "/stok-log", label: "Riwayat Stok", icon: History },
-      { href: "/theme-settings", label: "Tema", icon: Palette },
+      // { href: "/theme-settings", label: "Tema", icon: Palette },
     ];
 
     // Add Users menu only for super_admin
