@@ -170,20 +170,13 @@ export function DashboardPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard title="Total Menu" value={stats.totalMenu.toString()} icon={<UtensilsCrossed className="h-5 w-5" />} color="primary" />
-          <StatsCard
-            title="Bahan Baku"
-            value={stats.totalBahanBaku.toString()}
-            icon={<Package className="h-5 w-5" />}
-            subtitle={stats.bahanStokMenipis.length > 0 ? `${stats.bahanStokMenipis.length} stok menipis` : undefined}
-            color="blue"
-          />
-          <StatsCard title="Transaksi Hari Ini" value={stats.transaksiHariIni.toString()} icon={<ShoppingCart className="h-5 w-5" />} color="amber" />
+          <StatsCard title="Total Menu" value={stats.totalMenu.toString()} icon={<UtensilsCrossed className="h-5 w-5" />} />
+          <StatsCard title="Bahan Baku" value={stats.totalBahanBaku.toString()} icon={<Package className="h-5 w-5" />} subtitle={stats.bahanStokMenipis.length > 0 ? `${stats.bahanStokMenipis.length} stok menipis` : undefined} />
+          <StatsCard title="Transaksi Hari Ini" value={stats.transaksiHariIni.toString()} icon={<ShoppingCart className="h-5 w-5" />} />
           <StatsCard
             title="Pendapatan Hari Ini"
             value={formatCurrencyFull(stats.pendapatanHariIni)}
             icon={trend?.isUp ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
-            color="green"
             trend={trend ? { percentage: trend.percentage, isUp: trend.isUp } : undefined}
           />
         </div>
@@ -361,44 +354,40 @@ interface StatsCardProps {
   value: string;
   icon: React.ReactNode;
   subtitle?: string;
-  color?: "primary" | "blue" | "amber" | "green";
   trend?: { percentage: string; isUp: boolean };
 }
 
-const colorMap = {
-  primary: "bg-primary text-primary-foreground",
-  blue: "bg-blue-500 text-white",
-  amber: "bg-amber-500 text-white",
-  green: "bg-green-500 text-white",
-};
-
-function StatsCard({ title, value, icon, subtitle, color = "primary", trend }: StatsCardProps) {
+function StatsCard({ title, value, icon, subtitle, trend }: StatsCardProps) {
   return (
-    <Card
-      className="hover:shadow-lg transition-all duration-300 border-border bg-card overflow-hidden"
-      style={{
-        boxShadow: "var(--shadow-sm)",
-        borderRadius: "var(--radius)",
-      }}
-    >
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <p className="text-sm text-muted-foreground mb-1">{title}</p>
-            <p className="text-2xl font-bold text-foreground mt-1">{value}</p>
+    <Card className="group relative overflow-hidden border border-border bg-card hover:shadow-xl transition-all duration-500">
+      {/* Background decoration using theme colors */}
+      <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/10 blur-2xl transition-all duration-500 group-hover:scale-150" />
+      <div className="absolute -right-3 -bottom-3 h-16 w-16 rounded-full bg-primary/5 blur-xl opacity-60" />
+
+      <CardContent className="relative p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 space-y-3">
+            <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">{title}</p>
+            <p className="text-3xl font-bold text-foreground tracking-tight">{value}</p>
             {trend && (
-              <div className={`flex items-center gap-1 mt-2 text-xs font-medium ${trend.isUp ? "text-green-600" : "text-red-500"}`}>
+              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${trend.isUp ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>
                 {trend.isUp ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                <span>{trend.percentage}% dari kemarin</span>
+                <span>{trend.percentage}%</span>
               </div>
             )}
-            {subtitle && !trend && <p className="text-xs text-destructive mt-2 font-medium">⚠️ {subtitle}</p>}
+            {subtitle && !trend && (
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-destructive/10 text-destructive">
+                <AlertCircle className="h-3 w-3" />
+                <span>{subtitle}</span>
+              </div>
+            )}
           </div>
-          <div className={`${colorMap[color]} p-3 rounded-xl transition-transform hover:scale-105`} style={{ boxShadow: "var(--shadow-sm)" }}>
-            {icon}
-          </div>
+          <div className="bg-primary text-primary-foreground p-4 rounded-2xl shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:rotate-3">{icon}</div>
         </div>
       </CardContent>
+
+      {/* Bottom gradient line using theme primary */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     </Card>
   );
 }
