@@ -1,11 +1,13 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Package, ShoppingCart, UtensilsCrossed, TrendingUp, TrendingDown, AlertCircle, ArrowUp, ArrowDown } from "lucide-react";
+import { Package, ShoppingCart, UtensilsCrossed, TrendingUp, TrendingDown, AlertCircle, ArrowUp, ArrowDown, Sparkles, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import type { BahanBaku, Menu, Transaksi, DetailTransaksi } from "@/lib/types";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, AreaChart, Area } from "recharts";
+import Lottie from "lottie-react";
+import cookingAnimation from "@/components/loader/cooking-animation.json";
 
 // Warna untuk pie chart
 const COLORS = ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16"];
@@ -28,6 +30,15 @@ const formatCurrencyFull = (value: number) => {
   }).format(value);
 };
 
+// Get greeting based on time
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 11) return "Selamat Pagi";
+  if (hour >= 11 && hour < 15) return "Selamat Siang";
+  if (hour >= 15 && hour < 18) return "Selamat Sore";
+  return "Selamat Malam";
+};
+
 interface DashboardStats {
   totalMenu: number;
   totalBahanBaku: number;
@@ -43,9 +54,15 @@ interface DashboardStats {
 export function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
 
   useEffect(() => {
     fetchDashboardData();
+    // Get user from localStorage
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      setUser(JSON.parse(userStr));
+    }
   }, []);
 
   const fetchDashboardData = async () => {
@@ -158,15 +175,36 @@ export function DashboardPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-foreground tracking-tight" style={{ fontFamily: "var(--font-sans)" }}>
-            Dashboard
-          </h2>
-          <p className="text-muted-foreground mt-2 text-base" style={{ fontFamily: "var(--font-sans)" }}>
-            Ringkasan aktivitas dan stok Kedai Bunda
-          </p>
-        </div>
+        {/* Welcome Section with Animation */}
+        <Card className="relative overflow-hidden border-none bg-gradient-to-br from-primary/10 via-primary/5 to-background">
+          <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+          <CardContent className="relative p-6 md:p-8">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              {/* Lottie Animation */}
+              <div className="w-32 h-32 md:w-40 md:h-40 flex-shrink-0">
+                <Lottie animationData={cookingAnimation} loop={true} className="w-full h-full" />
+              </div>
+
+              {/* Welcome Text */}
+              <div className="flex-1 text-center md:text-left space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full text-primary text-sm font-medium">
+                  <Sparkles className="h-4 w-4" />
+                  <span>{getGreeting()}</span>
+                </div>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
+                  Selamat Datang, <span className="text-primary">{user?.name?.split(" ")[0] || "Admin"}</span>! 👋
+                </h1>
+                <p className="text-muted-foreground text-base md:text-lg max-w-2xl">Kelola bisnis kuliner Anda dengan mudah. Pantau stok bahan baku, kelola menu, dan lihat laporan penjualan dalam satu dashboard yang lengkap.</p>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span>{new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
