@@ -28,7 +28,6 @@ class MenuResource extends JsonResource
             'satuan' => $this->whenLoaded('satuan'),
             'stok_efektif' => $this->stok_efektif,
             'komposisi' => $this->whenLoaded('komposisiMenu'),
-            'bahan_baku' => $this->whenLoaded('bahanBaku'),
             'dibuat_pada' => $this->created_at?->format('Y-m-d H:i:s'),
             'diupdate_pada' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];

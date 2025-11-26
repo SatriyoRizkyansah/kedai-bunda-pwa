@@ -41,7 +41,7 @@ class BahanBakuController extends Controller
      */
     public function index()
     {
-        $bahanBaku = BahanBaku::with('konversi')->get();
+        $bahanBaku = BahanBaku::with(['konversi', 'satuan'])->get();
         
         return response()->json([
             'sukses' => true,
@@ -86,7 +86,8 @@ class BahanBakuController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
-            'satuan_dasar' => 'required|string|max:50',
+            'satuan_id' => 'required|exists:satuan,id',
+            'satuan_dasar' => 'nullable|string|max:50', // deprecated, untuk backward compat
             'stok_tersedia' => 'required|numeric|min:0',
             'harga_per_satuan' => 'required|numeric|min:0',
             'keterangan' => 'nullable|string',
@@ -101,7 +102,17 @@ class BahanBakuController extends Controller
             ], 422);
         }
 
-        $bahanBaku = BahanBaku::create($request->all());
+        // Set satuan_dasar dari satuan untuk backward compatibility
+        $data = $request->all();
+        if ($request->satuan_id) {
+            $satuan = \App\Models\Satuan::find($request->satuan_id);
+            if ($satuan) {
+                $data['satuan_dasar'] = $satuan->nama;
+            }
+        }
+
+        $bahanBaku = BahanBaku::create($data);
+        $bahanBaku->load('satuan');
 
         return response()->json([
             'sukses' => true,
@@ -263,7 +274,8 @@ class BahanBakuController extends Controller
 
         $validator = Validator::make($request->all(), [
             'nama' => 'sometimes|string|max:255',
-            'satuan_dasar' => 'sometimes|string|max:50',
+            'satuan_id' => 'sometimes|exists:satuan,id',
+            'satuan_dasar' => 'sometimes|string|max:50', // deprecated
             'stok_tersedia' => 'sometimes|numeric|min:0',
             'harga_per_satuan' => 'sometimes|numeric|min:0',
             'keterangan' => 'nullable|string',
@@ -278,7 +290,17 @@ class BahanBakuController extends Controller
             ], 422);
         }
 
-        $bahanBaku->update($request->all());
+        // Sync satuan_dasar dari satuan jika satuan_id diupdate
+        $data = $request->all();
+        if ($request->has('satuan_id')) {
+            $satuan = \App\Models\Satuan::find($request->satuan_id);
+            if ($satuan) {
+                $data['satuan_dasar'] = $satuan->nama;
+            }
+        }
+
+        $bahanBaku->update($data);
+        $bahanBaku->load('satuan');
 
         return response()->json([
             'sukses' => true,

@@ -445,15 +445,26 @@ class MenuController extends Controller
         $kekuranganBahan = [];
 
         foreach ($menu->komposisiMenu as $komposisi) {
-            $bahanBaku = $komposisi->bahanBaku;
+            $konversiBahan = $komposisi->konversiBahan;
+            if (!$konversiBahan || !$konversiBahan->bahanBaku) {
+                continue;
+            }
             
-            if ($bahanBaku->stok_tersedia < $komposisi->jumlah) {
+            $bahanBaku = $konversiBahan->bahanBaku;
+            $satuan = $konversiBahan->satuan;
+            
+            // Hitung kebutuhan dalam satuan dasar
+            // Misal: butuh 1 potong, 1 ekor = 9 potong, maka butuh 1/9 = 0.111 ekor
+            $kebutuhanDalamSatuanDasar = $komposisi->jumlah / $konversiBahan->jumlah_konversi;
+            
+            if ($bahanBaku->stok_tersedia < $kebutuhanDalamSatuanDasar) {
                 $tersedia = false;
                 $kekuranganBahan[] = [
                     'bahan' => $bahanBaku->nama,
-                    'dibutuhkan' => $komposisi->jumlah,
-                    'tersedia' => $bahanBaku->stok_tersedia,
-                    'satuan' => $komposisi->satuan
+                    'dibutuhkan' => round($kebutuhanDalamSatuanDasar, 4) . ' ' . $bahanBaku->satuan_dasar,
+                    'dibutuhkan_konversi' => $komposisi->jumlah . ' ' . ($satuan->nama ?? 'satuan'),
+                    'tersedia' => $bahanBaku->stok_tersedia . ' ' . $bahanBaku->satuan_dasar,
+                    'satuan_dasar' => $bahanBaku->satuan_dasar
                 ];
             }
         }

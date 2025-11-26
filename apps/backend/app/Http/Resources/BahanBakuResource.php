@@ -17,7 +17,15 @@ class BahanBakuResource extends JsonResource
         return [
             'id' => $this->id,
             'nama' => $this->nama,
-            'satuan_dasar' => $this->satuan_dasar,
+            'satuan_id' => $this->satuan_id,
+            'satuan_dasar' => $this->satuan_dasar, // backward compat
+            'satuan' => $this->whenLoaded('satuan', function() {
+                return [
+                    'id' => $this->satuan->id,
+                    'nama' => $this->satuan->nama,
+                    'singkatan' => $this->satuan->singkatan,
+                ];
+            }),
             'stok_tersedia' => (float) $this->stok_tersedia,
             'harga_per_satuan' => (float) $this->harga_per_satuan,
             'keterangan' => $this->keterangan,

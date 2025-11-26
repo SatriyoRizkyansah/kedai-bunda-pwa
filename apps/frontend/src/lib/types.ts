@@ -11,7 +11,9 @@ export interface User {
 export interface BahanBaku {
   id: number;
   nama: string;
-  satuan_dasar: string;
+  satuan_id?: number;
+  satuan_dasar: string; // backward compat - derived from satuan.nama
+  satuan?: Satuan;
   stok_tersedia: number;
   harga_per_satuan: number;
   keterangan?: string;
@@ -19,7 +21,6 @@ export interface BahanBaku {
   created_at?: string;
   updated_at?: string;
   // Legacy field names for backward compatibility
-  satuan?: string;
   stok?: number;
   stok_minimum?: number;
   harga_satuan?: number;

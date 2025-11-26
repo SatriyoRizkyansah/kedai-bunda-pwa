@@ -239,16 +239,32 @@ class TransaksiController extends Controller
                     'subtotal' => $detail['subtotal']
                 ]);
 
-                // Kurangi stok bahan baku
+                // Kurangi stok bahan baku (dengan perhitungan konversi yang benar)
                 foreach ($detail['menu']->komposisiMenu as $komposisi) {
-                    $bahanBaku = $komposisi->bahanBaku;
-                    $jumlahDigunakan = $komposisi->jumlah * $detail['jumlah'];
+                    // Ambil data dari relasi konversi_bahan
+                    $konversiBahan = $komposisi->konversiBahan;
+                    if (!$konversiBahan) {
+                        continue; // Skip jika tidak ada konversi
+                    }
+                    
+                    $bahanBaku = $konversiBahan->bahanBaku;
+                    if (!$bahanBaku) {
+                        continue; // Skip jika tidak ada bahan baku
+                    }
+                    
+                    // Hitung jumlah dalam satuan dasar
+                    // Contoh: 1 potong ayam, 1 ekor = 9 potong
+                    // Maka: 1 / 9 = 0.111 ekor yang dikurangi
+                    $jumlahDalamSatuanKonversi = $komposisi->jumlah * $detail['jumlah']; // misal 1 potong * 2 = 2 potong
+                    $jumlahDigunakan = $jumlahDalamSatuanKonversi / $konversiBahan->jumlah_konversi; // 2 / 9 = 0.222 ekor
+                    
                     $stokSebelum = $bahanBaku->stok_tersedia;
                     $stokSesudah = $stokSebelum - $jumlahDigunakan;
 
                     $bahanBaku->update(['stok_tersedia' => $stokSesudah]);
 
                     // Catat log stok
+                    $satuanKonversi = $konversiBahan->satuan?->nama ?? 'satuan';
                     StokLog::create([
                         'bahan_baku_id' => $bahanBaku->id,
                         'user_id' => $request->user_id,
@@ -257,7 +273,7 @@ class TransaksiController extends Controller
                         'stok_sebelum' => $stokSebelum,
                         'stok_sesudah' => $stokSesudah,
                         'referensi' => $transaksi->nomor_transaksi,
-                        'keterangan' => "Pemakaian untuk menu {$detail['menu']->nama}"
+                        'keterangan' => "Pemakaian {$jumlahDalamSatuanKonversi} {$satuanKonversi} {$bahanBaku->nama} untuk menu {$detail['menu']->nama}"
                     ]);
                 }
             }
@@ -383,17 +399,31 @@ class TransaksiController extends Controller
                 throw new \Exception('Transaksi sudah dibatalkan sebelumnya');
             }
 
-            // Kembalikan stok
+            // Kembalikan stok (dengan perhitungan konversi yang benar)
             foreach ($transaksi->detailTransaksi as $detail) {
                 foreach ($detail->menu->komposisiMenu as $komposisi) {
-                    $bahanBaku = $komposisi->bahanBaku;
-                    $jumlahDikembalikan = $komposisi->jumlah * $detail->jumlah;
+                    // Ambil data dari relasi konversi_bahan
+                    $konversiBahan = $komposisi->konversiBahan;
+                    if (!$konversiBahan) {
+                        continue; // Skip jika tidak ada konversi
+                    }
+                    
+                    $bahanBaku = $konversiBahan->bahanBaku;
+                    if (!$bahanBaku) {
+                        continue; // Skip jika tidak ada bahan baku
+                    }
+                    
+                    // Hitung jumlah dalam satuan dasar (kebalikan dari pengurangan)
+                    $jumlahDalamSatuanKonversi = $komposisi->jumlah * $detail->jumlah;
+                    $jumlahDikembalikan = $jumlahDalamSatuanKonversi / $konversiBahan->jumlah_konversi;
+                    
                     $stokSebelum = $bahanBaku->stok_tersedia;
                     $stokSesudah = $stokSebelum + $jumlahDikembalikan;
 
                     $bahanBaku->update(['stok_tersedia' => $stokSesudah]);
 
                     // Catat log stok
+                    $satuanKonversi = $konversiBahan->satuan?->nama ?? 'satuan';
                     StokLog::create([
                         'bahan_baku_id' => $bahanBaku->id,
                         'user_id' => $transaksi->user_id,
@@ -402,7 +432,7 @@ class TransaksiController extends Controller
                         'stok_sebelum' => $stokSebelum,
                         'stok_sesudah' => $stokSesudah,
                         'referensi' => $transaksi->nomor_transaksi,
-                        'keterangan' => "Pengembalian stok dari pembatalan transaksi"
+                        'keterangan' => "Pengembalian {$jumlahDalamSatuanKonversi} {$satuanKonversi} {$bahanBaku->nama} dari pembatalan transaksi"
                     ]);
                 }
             }

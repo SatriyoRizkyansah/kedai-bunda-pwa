@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Menu extends Model
 {
@@ -47,13 +46,14 @@ class Menu extends Model
     }
 
     /**
-     * Relasi ke bahan baku melalui komposisi menu
+     * Relasi ke bahan baku melalui komposisi menu dan konversi_bahan
+     * Note: Tidak lagi direct karena sekarang pakai konversi_bahan
      */
-    public function bahanBaku(): BelongsToMany
+    public function getBahanBakuViaKomposisiAttribute()
     {
-        return $this->belongsToMany(BahanBaku::class, 'komposisi_menu')
-            ->withPivot('jumlah', 'satuan')
-            ->withTimestamps();
+        return $this->komposisiMenu->map(function($komposisi) {
+            return $komposisi->konversiBahan?->bahanBaku;
+        })->filter();
     }
 
     /**
@@ -82,7 +82,7 @@ class Menu extends Model
             return $this->stok;
         }
 
-        $komposisi = $this->komposisiMenu()->with('bahanBaku')->get();
+        $komposisi = $this->komposisiMenu()->with('konversiBahan.bahanBaku')->get();
         
         if ($komposisi->isEmpty()) {
             return 0;
@@ -91,15 +91,21 @@ class Menu extends Model
         $stokTerkecil = PHP_FLOAT_MAX;
 
         foreach ($komposisi as $item) {
-            if (!$item->bahanBaku || $item->jumlah <= 0) {
+            $konversiBahan = $item->konversiBahan;
+            $bahanBaku = $konversiBahan?->bahanBaku;
+            if (!$bahanBaku || !$konversiBahan || $item->jumlah <= 0) {
                 continue;
             }
 
             // Hitung berapa menu yang bisa dibuat dari bahan ini
-            $stokBahan = $item->bahanBaku->stok_tersedia;
-            $kebutuhanPerMenu = $item->jumlah;
+            // Contoh: Stok ayam = 2 ekor, 1 ekor = 9 potong, butuh 1 potong per menu
+            // Stok dalam satuan konversi = 2 * 9 = 18 potong
+            // Menu bisa dibuat = 18 / 1 = 18 menu
+            $stokDalamSatuanDasar = $bahanBaku->stok_tersedia; // misal 2 ekor
+            $stokDalamSatuanKonversi = $stokDalamSatuanDasar * $konversiBahan->jumlah_konversi; // 2 * 9 = 18 potong
+            $kebutuhanPerMenu = $item->jumlah; // 1 potong
             
-            $menuDariBahan = floor($stokBahan / $kebutuhanPerMenu);
+            $menuDariBahan = floor($stokDalamSatuanKonversi / $kebutuhanPerMenu);
             
             if ($menuDariBahan < $stokTerkecil) {
                 $stokTerkecil = $menuDariBahan;
